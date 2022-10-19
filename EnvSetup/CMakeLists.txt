@@ -20,7 +20,6 @@ if(OPENGL_FOUND)
 	target_link_libraries(${TARGET_NAME} PUBLIC ${GLEW_LIB_DIR} ${GLFW_LIB_DIR} ${OPENGL_LIBRARIES})
 endif()
 
-message(${GLEW_DLL})
 set(BIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Debug)
     
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
