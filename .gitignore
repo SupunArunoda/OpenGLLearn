@@ -1,0 +1,4 @@
+#ignore following directories
+OpenGLCourseApp/build
+EnvSetup/build
+ExternalLibs
