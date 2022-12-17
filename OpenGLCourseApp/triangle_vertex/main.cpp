@@ -1,25 +1,9 @@
 #include <stdio.h>
 #include <iostream>
 
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
-
+#include "Shader.h"
 // Window dimensions
 const GLint WIDTH = 800, HEIGHT = 600;
-
-const char *vertexShaderSource = "#version 330 core\n"
-		"layout (location = 0) in vec3 aPos;\n"
-		"void main()\n"
-		"{\n"
-		"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"	FragColor = vec4(1.0f, 0.5f, 0.9f, 1.0f);\n"
-		"}\n\0";
 
 void processInput(GLFWwindow* window) 
 {
@@ -27,6 +11,181 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+}
+
+void generateRectangle(GLFWwindow* mainWindow, unsigned int& shader_program)
+{
+	float vertices[] = {
+		0.5f,0.5f,0.0f,		//top right
+		0.5f,-0.5f,0.0f,		//bootom right
+		-0.5f,-0.5f,0.0f,	//bottom left
+		-0.5f,0.5f,0.0f,	//top left
+		
+	};
+
+	unsigned int indices[] = {
+		0,1,3,
+		1,2,3
+	};
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+	///Enable polygon mode
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Loop until window closed
+	while (!glfwWindowShouldClose(mainWindow))
+	{
+		// Get + Handle user input events
+		glfwPollEvents();
+		processInput(mainWindow);
+
+		// Clear window
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//draw triangle
+		glUseProgram(shader_program);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,0);
+
+		glfwSwapBuffers(mainWindow);
+	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+
+
+}
+
+void generateTwoTriangle(GLFWwindow* mainWindow, unsigned int& shader_program)
+{
+	//create vertex data and buffers
+	float vertices[] = {
+		//first triangle
+		-0.5f,-0.25f,0.0f,
+		0.0f,-0.25f,0.0f,
+		-0.25f,0.25f,0.0f,
+		
+
+		//second triangle
+		0.0f,-0.25f,0.0f,
+		0.5f,-0.25f,0.0f,
+		0.25f,0.25f,0.0f,
+		
+	};
+
+
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
+	//bind the buffer after enable the vertex attribute
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//bind the vertex array
+	glBindVertexArray(0);
+
+	// Loop until window closed
+	while (!glfwWindowShouldClose(mainWindow))
+	{
+		// Get + Handle user input events
+		glfwPollEvents();
+		processInput(mainWindow);
+
+		// Clear window
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//draw triangle
+		glUseProgram(shader_program);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glfwSwapBuffers(mainWindow);
+	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	
+}
+
+void generateTriangle(GLFWwindow* mainWindow, unsigned int& shader_program)
+{
+	//create vertex data and buffers
+	float vertices[] = {
+		-0.5f,-0.5f,0.0f,
+		0.5f,-0.5f,0.0f,
+		0.0f,0.5f,0.0f
+	};
+
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
+	//bind the buffer after enable the vertex attribute
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//bind the vertex array
+	glBindVertexArray(0);
+
+	// Loop until window closed
+	while (!glfwWindowShouldClose(mainWindow))
+	{
+		// Get + Handle user input events
+		glfwPollEvents();
+		processInput(mainWindow);
+
+		// Clear window
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//draw triangle
+		glUseProgram(shader_program);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glfwSwapBuffers(mainWindow);
+	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 }
 
 int main()
@@ -81,92 +240,37 @@ int main()
 
 	//Shader program
 	//vertex Shader
-	unsigned int vertexShder = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShder, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShder);
-	//check for shader compile errors
-	int sucess;
-	char infoLog[512];
-	glGetShaderiv(vertexShder, GL_COMPILE_STATUS, &sucess);
-
-	if (!sucess) 
+	unsigned int vertex_shader;
+	GL::ShaderResult res = GL::createVertexShader(vertex_shader);
+	if (res == GL::ShaderResult::VertexShaderFailed) 
 	{
-		glGetShaderInfoLog(vertexShder, 512, NULL, infoLog);
-		std::cerr << "ERROR:SHADER:COMPILATION FAILED\n" << infoLog << std::endl;
+		return -1;
 	}
 
 	//Fragment Shader
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &sucess);
-	if (!sucess) 
+	unsigned int fragment_shader;
+	res = GL::createFragmentShader(fragment_shader);
+	if (res == GL::ShaderResult::FragmentShaderFailed)
 	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cerr << "ERROR:FRAGMENT:SHADER:COMPILATION FAILED\n" << infoLog << std::endl;
+		return -1;
 	}
 
 	//link shaders
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShder);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	//check linking status
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &sucess);
-	if (!sucess) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cerr << "ERROR:SHADER:PROGRAM:LINKING FAILED\n" << infoLog << std::endl;
-	}
-	glDeleteShader(vertexShder);
-	glDeleteShader(fragmentShader);
-
-	//create vertex data and buffers
-	float vertices[] = {
-		-0.5f,-0.5f,0.0f,
-		0.5f,-0.5f,0.0f,
-		0.0f,0.5f,0.0f
-	};
-
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	//Unbind the buffer after enable the vertex attribute
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	//Unbind the vertex array
-	glBindVertexArray(0);
-
-	// Loop until window closed
-	while (!glfwWindowShouldClose(mainWindow))
+	unsigned int shader_program;
+	std::vector<unsigned int> shader_list;
+	shader_list.push_back(vertex_shader);
+	shader_list.push_back(fragment_shader);
+	res = GL::linkShaderList(shader_program, shader_list);
+	if (res == GL::LinkingFailed) 
 	{
-		// Get + Handle user input events
-		glfwPollEvents();
-		processInput(mainWindow);
-
-		// Clear window
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		//draw triangle
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glfwSwapBuffers(mainWindow);
+		return -1;
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
+	generateTwoTriangle(mainWindow, shader_program);
+	//generateTriangle(mainWindow,shader_program);
+	//generateRectangle(mainWindow, shader_program);
+
+	glDeleteProgram(shader_program);
 
 	glfwTerminate();
 
