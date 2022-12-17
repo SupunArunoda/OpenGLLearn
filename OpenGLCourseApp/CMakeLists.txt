@@ -21,4 +21,5 @@ endif()
 
 add_subdirectory(red_window)
 add_subdirectory(triangle_vertex)
+add_subdirectory(Library)
 
