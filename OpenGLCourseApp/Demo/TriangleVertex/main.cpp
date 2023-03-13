@@ -5,6 +5,8 @@
 // Window dimensions
 const GLint WIDTH = 800, HEIGHT = 600;
 
+std::shared_ptr<GL::BootsTrap> bootstrap;
+
 void processInput(GLFWwindow* window) 
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
@@ -126,6 +128,13 @@ void generateTwoTriangle(GLFWwindow* mainWindow, unsigned int& shader_program)
 
 		//draw triangle
 		glUseProgram(shader_program);
+
+		//Use uniform
+		double time_value = glfwGetTime();
+		float green_value = static_cast<float>(sin(time_value) / 2.0 + 0.5);
+		int vertex_color_location = glGetUniformLocation(shader_program, "ourColor");
+		glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -188,56 +197,58 @@ void generateTriangle(GLFWwindow* mainWindow, unsigned int& shader_program)
 	glDeleteBuffers(1, &VBO);
 }
 
+void generateMultiColorTriangle(GLFWwindow* mainWindow, unsigned int& shader_program) 
+{
+	float vertices[] = {
+		//vertices				//colors
+		-0.5f,	-0.5f,	0.0f,	1.0f,	0.0f,	0.0f,
+		0.5f,	-0.5f,	0.0f,	0.0f,	1.0f,	0.0f,
+		0.0f,	0.5f,	0.0f,	0.0f,	0.0f,	1.0f
+	};
+
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	//Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	
+
+	while (!glfwWindowShouldClose(mainWindow))
+	{
+		// Get + Handle user input events
+		glfwPollEvents();
+		processInput(mainWindow);
+
+		// Clear window
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shader_program);
+
+		// render the triangle
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glfwSwapBuffers(mainWindow);
+	}
+}
+
 int main()
 {
-	// Initialise GLFW
-	if (!glfwInit())
-	{
-		printf("GLFW initialisation failed!");
-		glfwTerminate();
-		return 1;
-	}
-
-	// Setup GLFW window properties
-	// OpenGL version
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	// Core Profile = No Backwards Compatibility
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// Allow Forward Compatbility
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-	// Create the window
-	GLFWwindow *mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Test Window", NULL, NULL);
-	if (!mainWindow)
-	{
-		printf("GLFW window creation failed!");
-		glfwTerminate();
-		return 1;
-	}
-
-	// Get Buffer Size information
-	int bufferWidth, bufferHeight;
-	glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
-
-	// Set context for GLEW to use
-	glfwMakeContextCurrent(mainWindow);
-
-	// Allow modern extension features
-	glewExperimental = GL_TRUE;
-
-	if (glewInit() != GLEW_OK)
-	{
-		printf("GLEW initialisation failed!");
-		glfwDestroyWindow(mainWindow);
-		glfwTerminate();
-		return 1;
-	}
-
-	// Setup Viewport size
-	glViewport(0, 0, bufferWidth, bufferHeight);
-
-
+	bootstrap = std::make_shared<GL::BootsTrap>();
+	bootstrap->init();
+	
 	//Shader program
 	//vertex Shader
 	unsigned int vertex_shader;
@@ -266,13 +277,14 @@ int main()
 		return -1;
 	}
 
-	generateTwoTriangle(mainWindow, shader_program);
+	//generateTwoTriangle(mainWindow, shader_program);
 	//generateTriangle(mainWindow,shader_program);
 	//generateRectangle(mainWindow, shader_program);
+	generateMultiColorTriangle(bootstrap->getMainWindow(), shader_program);
 
 	glDeleteProgram(shader_program);
 
-	glfwTerminate();
+	bootstrap->clear();
 
 	return 0;
 }
