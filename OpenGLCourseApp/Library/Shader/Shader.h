@@ -1,16 +1,16 @@
 #ifndef OPENGL_LIBRARY_SHADER_H
 #define OPENGL_LIBRARY_SHADER_H
 
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
+#include "BootsTrap.h"
 #include <vector>
 
 namespace GL 
 {
 
-	#define INFO_MESSAGE_SIZE 512
+	constexpr int INFO_MESSAGE_SIZE = 512;
 
-	enum ShaderResult {
+	enum ShaderResult 
+	{
 		Success,
 		FragmentShaderFailed,
 		VertexShaderFailed,

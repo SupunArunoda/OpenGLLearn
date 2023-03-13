@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(TARGET_NAME RedWindowApp)
+set(TARGET_NAME Texture)
 project(${TARGET_NAME} VERSION 0.1 LANGUAGES CXX)
 
 #include_directories(${TARGET_NAME} PUBLIC ${GLEW_LIB_DIR} ${GLFW_LIB_DIR})
 if(OPENGL_FOUND)
 	add_executable(${TARGET_NAME} main.cpp)
-	target_link_libraries(${TARGET_NAME} PUBLIC ${GLEW_LIB_DIR} ${GLFW_LIB_DIR} ${OPENGL_LIBRARIES})
+	target_link_libraries(${TARGET_NAME})
+	set_target_properties(${TARGET_NAME} PROPERTIES FOLDER Demo)
+    target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -22,7 +24,3 @@ TARGET ${TARGET_NAME} POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy 
 		${GLEW_DLL} ${BIN_DIRECTORY}
 )
-
-target_compile_definitions(${TARGET_NAME} PUBLIC -D_UNICODE -DUNICODE -DNOMINMAX)
-
-
